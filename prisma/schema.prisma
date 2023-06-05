@@ -42,7 +42,7 @@ model Product {
 
 model Order {
   id        Int      @id @default(autoincrement())
-  orderedAt DateTime @default(now())
+  orderedAt DateTime @default(now()) @map("ordered_at")
   total     Float    @default(0)
 
   products ProductsOnOrders[]
@@ -57,7 +57,7 @@ model Cart {
   products ProductsOnCarts[]
 
   user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
+  userId Int  @unique @map("user_id")
 }
 
 model ProductsOnCarts {
@@ -86,8 +86,8 @@ model ProductsOnOrders {
 
 model Favorite {
   user       User    @relation(fields: [userId], references: [id])
-  userId     Int
-  
+  userId     Int     @map("user_id")
+
   product    Product @relation(fields: [productSKU], references: [SKU])
   productSKU Int     @map("product_sku")
 
