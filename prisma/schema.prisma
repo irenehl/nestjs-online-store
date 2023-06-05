@@ -9,3 +9,92 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  lastname  String
+  username  String  @unique
+  email     String  @unique
+  password  String
+  recovery  String? @db.Uuid
+  role      Roles   @default(CLIENT)
+
+  cart      Cart?
+  orders    Order[]
+  favorites Favorite[]
+}
+
+model Product {
+  SKU         Int     @id @default(autoincrement())
+  name        String
+  description String  @db.VarChar(200)
+  price       Float
+  stock       Int
+  image       String?
+  available   Boolean @default(true)
+  category    String  @default("UNCATEGORIZED")
+
+  cart      ProductsOnCarts[]
+  orders    ProductsOnOrders[]
+  favorites Favorite[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  orderedAt DateTime @default(now())
+  total     Float    @default(0)
+
+  products ProductsOnOrders[]
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @map("user_id")
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+
+  products ProductsOnCarts[]
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+}
+
+model ProductsOnCarts {
+  quantity   Int
+
+  cart       Cart    @relation(fields: [cartId], references: [id])
+  cartId     Int     @map("cart_id")
+
+  product    Product @relation(fields: [productSKU], references: [SKU])
+  productSKU Int     @map("product_sku")
+  
+  @@id([cartId, productSKU])
+}
+
+model ProductsOnOrders {
+  quantity   Int
+
+  product    Product @relation(fields: [productSKU], references: [SKU])
+  productSKU Int     @map("product_sku")
+
+  order      Order   @relation(fields: [orderId], references: [id])
+  orderId    Int     @map("order_id")
+
+  @@id([productSKU, orderId])
+}
+
+model Favorite {
+  user       User    @relation(fields: [userId], references: [id])
+  userId     Int
+  
+  product    Product @relation(fields: [productSKU], references: [SKU])
+  productSKU Int     @map("product_sku")
+
+  @@id([userId, productSKU])
+}
+
+enum Roles {
+  MANAGER
+  CLIENT
+}
