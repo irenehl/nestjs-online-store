@@ -19,6 +19,10 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@config/*": ["./src/config/*"],
-    }
+      "@common/*": ["./src/common/*"],
+      "@user/*": ["./src/user/*"],
+      "@mocks/*": ["./src/mocks/*"]
+    },
+    "resolveJsonModule": true
   }
 }
