@@ -18,7 +18,7 @@ model User {
   email     String  @unique
   password  String
   recovery  String? @db.Uuid
-  role      Roles   @default(CLIENT)
+  role      Role   @default(CLIENT)
 
   cart      Cart?
   orders    Order[]
@@ -94,7 +94,8 @@ model Favorite {
   @@id([userId, productSKU])
 }
 
-enum Roles {
+enum Role {
   MANAGER
   CLIENT
+	@@map("Roles")
 }
