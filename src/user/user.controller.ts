@@ -40,7 +40,7 @@ export class UserController {
         @Param('id') id: string,
         @Body() data: UpdateUserDto
     ): Promise<UpdateUserDto> {
-        return this.userService.update(id, data);
+        return this.userService.update(Number(id), data);
     }
 
     @Delete('/:id')

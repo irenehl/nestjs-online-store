@@ -69,10 +69,10 @@ export class UserService {
     }
 
     async update(
-        userId: string,
+        userId: number,
         data: Prisma.UserUpdateInput
     ): Promise<UpdateUserDto> {
-        if (!(await this.exists({ id: Number(userId) })))
+        if (!(await this.exists({ id: userId })))
             throw new NotFoundException('User not found');
 
         const user = await this.prisma.user.update({
@@ -80,7 +80,7 @@ export class UserService {
                 ...data,
             },
             where: {
-                id: Number(userId),
+                id: userId,
             },
         });
 

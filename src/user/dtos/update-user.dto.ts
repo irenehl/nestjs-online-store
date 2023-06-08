@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 
 export class UpdateUserDto {
+    id: number;
     name: string;
     lastname: string;
     email: string;
@@ -9,6 +10,7 @@ export class UpdateUserDto {
 
     static toDto(user: User): UpdateUserDto {
         return {
+            id: user.id,
             name: user.name,
             lastname: user.lastname,
             email: user.email,

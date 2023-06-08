@@ -2,7 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '@config/prisma.service';
 import { MockContext, createMockContext } from '@mocks/prisma.mock';
-import { allUsersMock, updatedUserMock, userMock } from './mocks/user.mock';
+import {
+    allUsersMock,
+    updatedUserMock,
+    userDtoMock,
+    userMock,
+} from './mocks/user.mock';
+import { ConfigService } from '@nestjs/config';
 
 describe('UserService', () => {
     let service: UserService;
@@ -10,7 +16,7 @@ describe('UserService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [UserService, PrismaService],
+            providers: [UserService, PrismaService, ConfigService],
         })
             .overrideProvider(PrismaService)
             .useValue(createMockContext())
@@ -50,13 +56,41 @@ describe('UserService', () => {
     });
 
     describe('create', () => {
-        // it('should add user', async () => {
-        //     // Arrange
-        //     prisma.user.findUnique.mockResolvedValueOnce(null);
-        //     prisma.user.create.mockResolvedValueOnce(userMock);
-        //     // Act
-        //     const result = await service.create({})
-        // })
+        it('should add user', async () => {
+            // Arrange
+            prisma.user.findUnique.mockResolvedValueOnce(null);
+            prisma.user.create.mockResolvedValueOnce(userMock);
+
+            // Act
+            const result = await service.create({
+                email: 'danielalopez+admin@ravn.co',
+                name: 'Daniela',
+                lastname: 'Lopez',
+                username: 'daniela',
+                password: 'pass123',
+                role: 'CLIENT',
+            });
+
+            // Assert
+            expect(result).toMatchObject(userDtoMock);
+        });
+
+        it('should fail when create a new user and user already exists', async () => {
+            // Arrange
+            prisma.user.findUnique.mockResolvedValue(userMock);
+
+            // Act & Assert
+            await expect(
+                service.create({
+                    email: 'danielalopez+admin@ravn.co',
+                    name: 'Daniela',
+                    lastname: 'Lopez',
+                    username: 'daniela',
+                    password: 'pass123',
+                    role: 'CLIENT',
+                })
+            ).rejects.toThrow('User already exists');
+        });
     });
 
     describe('findAll', () => {
@@ -64,8 +98,8 @@ describe('UserService', () => {
             // Arrange
             prisma.user.findMany.mockResolvedValueOnce(allUsersMock);
 
-            const page = 1;
-            const limit = 15;
+            const page = '1';
+            const limit = '15';
 
             // Act
             const result = await service.findAll({ page, limit });
@@ -79,7 +113,10 @@ describe('UserService', () => {
         it('should update an user', async () => {
             // Arrange
             prisma.user.findUnique.mockResolvedValueOnce(userMock);
-            prisma.user.update.mockResolvedValueOnce(updatedUserMock);
+            prisma.user.update.mockResolvedValueOnce({
+                ...userMock,
+                username: 'daniela',
+            });
 
             const info = {
                 username: 'daniela',
@@ -89,8 +126,8 @@ describe('UserService', () => {
             const result = await service.update(userMock.id, info);
 
             // Assert
-            expect(result).toMatchObject(updatedUserMock);
             expect(result.username).toEqual('daniela');
+            expect(result).toMatchObject(updatedUserMock);
         });
 
         it('should fail when update an user that does not exists', async () => {
@@ -118,7 +155,7 @@ describe('UserService', () => {
             const result = await service.delete(userMock.id);
 
             // Assert
-            expect(result).toMatchObject(userMock);
+            expect(result).toMatchObject(userDtoMock);
         });
 
         it('should fail when delete an user that does not exists', async () => {

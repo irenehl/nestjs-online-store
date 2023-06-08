@@ -1,15 +1,23 @@
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-export const userMock = {
+export const userModMock = () => ({
     id: 1,
-    email: 'danielalopez@ravn.co',
+    email: 'danielalopez+admin@ravn.co',
     name: 'Daniela',
     lastname: 'Lopez',
-    username: 'irenehl',
+    username: 'daniela',
     password: bcrypt.hashSync('pass123', 10),
     role: Role.CLIENT,
     recovery: null,
+});
+
+export const userMock = {
+    ...userModMock(),
+    id: 2,
+    email: 'danielalopez+client@ravn.co',
+    username: 'daniela2',
+    password: 'pass123',
 };
 
 export const allUsersMock = [
@@ -40,12 +48,18 @@ export const allUsersMock = [
 ];
 
 export const updatedUserMock = {
-    id: 1,
-    email: 'danielalopez@ravn.co',
+    email: 'danielalopez+client@ravn.co',
     name: 'Daniela',
     lastname: 'Lopez',
     username: 'daniela',
-    password: bcrypt.hashSync('pass123', 10),
-    role: Role.CLIENT,
+    password: 'pass123',
+};
+
+export const userDtoMock = {
+    name: 'Daniela',
+    lastname: 'Lopez',
+    username: 'daniela2',
+    email: 'danielalopez+client@ravn.co',
     recovery: null,
+    role: Role.CLIENT,
 };
