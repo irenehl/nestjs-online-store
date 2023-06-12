@@ -20,8 +20,11 @@
     "paths": {
       "@config/*": ["./src/config/*"],
       "@common/*": ["./src/common/*"],
+      "@mocks/*": ["./src/mocks/*"],
       "@user/*": ["./src/user/*"],
-      "@mocks/*": ["./src/mocks/*"]
+      "@auth/*": ["./src/auth/*"],
+      "@product/*": ["./src/product/*"],
+      "@cart/*": [".src/cart/*"]
     },
     "resolveJsonModule": true
   }
