@@ -1,7 +1,5 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { User } from '@user/decorators/user.decorator';
-import { CartDto } from './dtos/cart.dto';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
