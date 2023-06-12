@@ -17,7 +17,6 @@ export const userMock = {
     id: 2,
     email: 'danielalopez+client@ravn.co',
     username: 'daniela2',
-    password: 'pass123',
 };
 
 export const allUsersMock = [
@@ -52,7 +51,6 @@ export const updatedUserMock = {
     name: 'Daniela',
     lastname: 'Lopez',
     username: 'daniela',
-    password: 'pass123',
 };
 
 export const userDtoMock = {

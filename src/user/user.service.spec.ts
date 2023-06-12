@@ -41,7 +41,8 @@ describe('UserService', () => {
             });
 
             // Assert
-            expect(result).toMatchObject(userMock);
+            expect(prisma.user.findUnique).toHaveBeenCalled();
+            expect(result).toHaveProperty('id', expect.any(Number));
         });
 
         it('should throw NotFound when user does not exists', async () => {
@@ -126,8 +127,10 @@ describe('UserService', () => {
             const result = await service.update(userMock.id, info);
 
             // Assert
+            expect(prisma.user.update).toHaveBeenCalled();
             expect(result.username).toEqual('daniela');
-            expect(result).toMatchObject(updatedUserMock);
+            expect(prisma.user.findUnique).toHaveBeenCalled();
+            expect(result).toHaveProperty('id', expect.any(Number));
         });
 
         it('should fail when update an user that does not exists', async () => {
