@@ -1,4 +1,4 @@
-import { IPagination } from '@common/interfaces/pagination';
+import { IPagination } from '@common/interfaces/pagination.dto';
 import { PrismaService } from '@config/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
