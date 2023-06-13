@@ -2,12 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '@config/prisma.service';
 import { MockContext, createMockContext } from '@mocks/prisma.mock';
-import {
-    allUsersMock,
-    updatedUserMock,
-    userDtoMock,
-    userMock,
-} from './mocks/user.mock';
+import { allUsersMock, userDtoMock, userMock } from './mocks/user.mock';
 import { ConfigService } from '@nestjs/config';
 
 describe('UserService', () => {
@@ -33,21 +28,21 @@ describe('UserService', () => {
     describe('findOne', () => {
         it('should return a user', async () => {
             // Arrange
-            prisma.user.findUnique.mockResolvedValueOnce(userMock);
+            prisma.user.findUniqueOrThrow.mockResolvedValueOnce(userMock);
 
             // Act
             const result = await service.findOne({
-                email: 'danielalopez@ravn.co',
+                email: 'danielalopez+client@ravn.co',
             });
 
             // Assert
-            expect(prisma.user.findUnique).toHaveBeenCalled();
+            expect(prisma.user.findUniqueOrThrow).toHaveBeenCalled();
             expect(result).toHaveProperty('id', expect.any(Number));
         });
 
         it('should throw NotFound when user does not exists', async () => {
             // Arrange
-            prisma.user.findUnique.mockResolvedValueOnce(null);
+            prisma.user.findUniqueOrThrow.mockRejectedValueOnce(null);
 
             // Act & Assert
             await expect(

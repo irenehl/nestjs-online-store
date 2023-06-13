@@ -6,9 +6,10 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { Prisma, Role, User } from '@prisma/client';
-import { IPagination } from '@common/interfaces/pagination';
+import { IPagination } from '@common/interfaces/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserDto } from './dtos/user.dto';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -51,7 +52,7 @@ export class UserService {
                 ...data,
                 password: hashedPwd,
                 cart:
-                    data.role && data.role === Role.CLIENT
+                    !data.role || data.role === Role.CLIENT
                         ? {
                               create: {},
                           }
@@ -119,4 +120,18 @@ export class UserService {
 
         return UserDto.toDto(user);
     }
+
+    // async recoveryRequest(email: string) {
+    //     const account = await this.userService.findOne({
+    //         email,
+    //     });
+
+    //     const recoveryToken = uuid();
+
+    //     await this.userService.update(account.id, {
+    //         recovery: recoveryToken,
+    //     });
+
+    //     await this.
+    // }
 }
