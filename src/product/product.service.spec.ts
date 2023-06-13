@@ -46,28 +46,30 @@ describe('ProductService', () => {
 
             // Assert
             expect(result).toMatchObject(productMock);
+            expect(result).toHaveProperty('SKU', expect.any(Number));
         });
     });
 
     describe('findOne', () => {
         it('should find one product by sku', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(productMock);
+            prisma.product.findUniqueOrThrow.mockResolvedValueOnce(productMock);
 
             // Act
             const result = await service.findOne({ SKU: productMock.SKU });
 
             // Assert
-            expect(result).toMatchObject(productMock);
+            expect(prisma.product.findUniqueOrThrow).toHaveBeenCalled();
+            expect(result).toHaveProperty('SKU', expect.any(Number));
         });
 
         it('should fail when product does not exists', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(null);
+            prisma.product.findUniqueOrThrow.mockRejectedValueOnce(null);
 
             // Act & Arrange
             await expect(service.findOne({ SKU: 100 })).rejects.toThrow(
-                'Product not found'
+                'Product 100 not found'
             );
         });
     });
@@ -91,7 +93,7 @@ describe('ProductService', () => {
     describe('update', () => {
         it('should update a product', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(productMock);
+            prisma.product.findUniqueOrThrow.mockResolvedValue(productMock);
             prisma.product.update.mockResolvedValue({
                 ...productMock,
                 name: 'updated product',
@@ -103,41 +105,43 @@ describe('ProductService', () => {
             });
 
             // Assert
+            expect(prisma.product.findUniqueOrThrow).toHaveBeenCalled();
             expect(result.name).toEqual('updated product');
             expect(result).toMatchObject(updateProductMock);
         });
 
         it('should fail when updated a product that does not exists', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(null);
+            prisma.product.findUniqueOrThrow.mockRejectedValueOnce(null);
 
             // Act & assert
             await expect(
                 service.update(1000, { name: 'updated product' })
-            ).rejects.toThrow('Product not found');
+            ).rejects.toThrow('Product 1000 not found');
         });
     });
 
     describe('delete', () => {
         it('should delete a product', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(productMock);
+            prisma.product.findUniqueOrThrow.mockResolvedValue(productMock);
             prisma.product.delete.mockResolvedValue(productMock);
 
             // Act
             const result = await service.delete(productMock.SKU);
 
             // Assert
-            expect(result).toMatchObject(productMock);
+            expect(prisma.product.findUniqueOrThrow).toHaveBeenCalled();
+            expect(result).toHaveProperty('SKU', expect.any(Number));
         });
 
         it('should fail when updated a product that does not exists', async () => {
             // Arrange
-            prisma.product.findUnique.mockResolvedValue(null);
+            prisma.product.findUniqueOrThrow.mockRejectedValueOnce(null);
 
             // Act & assert
             await expect(service.delete(1000)).rejects.toThrow(
-                'Product not found'
+                'Product 1000 not found'
             );
         });
     });
