@@ -17,7 +17,17 @@ export class CartService {
 
     async findOne(userId: number) {
         return this.prisma.cart
-            .findFirstOrThrow({ where: { userId } })
+            .findFirstOrThrow({
+                where: { userId },
+                include: {
+                    products: {
+                        select: {
+                            product: true,
+                            quantity: true,
+                        },
+                    },
+                },
+            })
             .catch(() => {
                 throw new NotFoundException('Cart not found');
             });
@@ -33,7 +43,7 @@ export class CartService {
 
         const cart = await this.findOne(userId);
 
-        const pd = await this.prisma.productsOnCarts.upsert({
+        await this.prisma.productsOnCarts.upsert({
             where: {
                 cartId_productSKU: {
                     cartId: cart.id,
@@ -48,18 +58,19 @@ export class CartService {
             update: {
                 quantity: data.quantity,
             },
+            select: {
+                product: true,
+                quantity: true,
+            },
         });
 
-        return CartDto.toDto(cart, [
-            ...(await this.findAllProductsOnCart(cart.id)),
-            pd,
-        ]);
+        return CartDto.toDto(await this.findOne(cart.userId));
     }
 
     async removeProduct(userId: number, SKU: number) {
         const cart = await this.findOne(userId);
 
-        const _ = await this.prisma.productsOnCarts
+        await this.prisma.productsOnCarts
             .findUniqueOrThrow({
                 where: {
                     cartId_productSKU: {
@@ -81,8 +92,12 @@ export class CartService {
                     cartId: cart.id,
                 },
             },
+            select: {
+                product: true,
+                quantity: true,
+            },
         });
 
-        return CartDto.toDto(cart, await this.findAllProductsOnCart(cart.id));
+        return CartDto.toDto(await this.findOne(cart.userId));
     }
 }

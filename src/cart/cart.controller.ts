@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { AddProductDto } from './dtos/add-product.dto';
 import { CartDto } from './dtos/cart.dto';
 import { User } from '@user/decorators/user.decorator';
+import { PayloadDto } from '@auth/dtos/payload.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cart')
@@ -30,10 +31,10 @@ export class CartController {
 
     @Post()
     async addProduct(
-        @User() id: any,
+        @User() user: PayloadDto,
         @Body() data: AddProductDto
     ): Promise<CartDto> {
-        return this.cartService.addProduct(Number(id), data);
+        return this.cartService.addProduct(Number(user.sub), data);
     }
 
     @Delete()

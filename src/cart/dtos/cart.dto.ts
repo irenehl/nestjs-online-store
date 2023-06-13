@@ -1,19 +1,20 @@
-import { Cart, ProductsOnCarts } from '@prisma/client';
+import { Cart } from '@prisma/client';
+import { ProductDto } from '@product/dtos/product.dto';
 import { ProductOnCartDto } from './product-on-cart.dto';
 
 export class CartDto {
     id: number;
     userId: number;
 
-    products: ProductOnCartDto[];
+    items: ProductOnCartDto[];
 
-    static toDto(cart: Cart, products: ProductsOnCarts[]): CartDto {
+    static toDto(
+        cart: Cart & { products: { product: ProductDto; quantity: number }[] }
+    ): CartDto {
         return {
-            ...cart,
-            products: products.map(({ productSKU: SKU, quantity }) => ({
-                SKU,
-                quantity,
-            })),
+            id: cart.id,
+            userId: cart.userId,
+            items: cart.products,
         };
     }
 }
