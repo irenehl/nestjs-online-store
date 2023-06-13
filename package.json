@@ -31,6 +31,7 @@
     "rxjs": "^7.2.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-ses": "^3.350.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/jwt": "^10.0.3",
     "@nestjs/passport": "^9.0.3",
@@ -43,8 +44,10 @@
     "@types/passport-jwt": "^3.0.8",
     "@types/passport-local": "^1.0.35",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "aws-sdk": "^2.1396.0",
     "bcrypt": "^5.1.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
@@ -61,7 +64,8 @@
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "uuid": "^9.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -76,7 +80,9 @@
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s",
-      "!**/*.dto.(t|j)s"
+      "!**/*.dto.(t|j)s",
+      "!**/*.module.(t|j)s",
+      "!**/*.guard.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

@@ -36,7 +36,7 @@ describe('AuthService', () => {
     describe('validateUser', () => {
         it('should validate an user', async () => {
             // Arrange
-            prisma.user.findUnique.mockResolvedValueOnce(userMock);
+            prisma.user.findUniqueOrThrow.mockResolvedValueOnce(userMock);
 
             // Act
             const result = await service.validateUser(
@@ -45,15 +45,28 @@ describe('AuthService', () => {
             );
 
             // Assert
-            expect(prisma.user.findUnique).toHaveBeenCalled();
+            expect(prisma.user.findUniqueOrThrow).toHaveBeenCalled();
             expect(result).toHaveProperty('id', expect.any(Number));
+        });
+
+        it('should fail when validate an user', async () => {
+            // Arrange
+            prisma.user.findUniqueOrThrow.mockResolvedValue(userMock);
+
+            // Act
+            const result = await service.validateUser(userMock.email, 'pass');
+
+            // Act && Assert
+            expect(result).toEqual(false);
         });
     });
 
     describe('login', () => {
         it('should generate a token from an user', async () => {
+            // Arrange
             const result = await service.login(userMock);
 
+            // Act & Assert
             expect(result).toHaveProperty('access_token', expect.any(String));
         });
     });

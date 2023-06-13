@@ -21,8 +21,7 @@ export class AuthService {
     ): Promise<UserDto | false> {
         const user = (await this.userService.findOne({ email }, false)) as User;
 
-        if (!user || !(await bcrypt.compare(password, user.password)))
-            return false;
+        if (!(await bcrypt.compare(password, user.password))) return false;
 
         return user;
     }

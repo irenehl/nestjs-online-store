@@ -5,6 +5,7 @@ import { UserService } from '@user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@config/prisma.service';
+import { userMock } from '@user/mocks/user.mock';
 
 describe('AuthController', () => {
     let controller: AuthController;
@@ -12,7 +13,15 @@ describe('AuthController', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                AuthService,
+                {
+                    provide: AuthService,
+                    useValue: {
+                        validate: jest.fn(),
+                        login: jest.fn(() => ({
+                            access_token: 'a',
+                        })),
+                    },
+                },
                 UserService,
                 JwtService,
                 ConfigService,
@@ -26,5 +35,11 @@ describe('AuthController', () => {
 
     it('should be defined', () => {
         expect(controller).toBeDefined();
+    });
+
+    describe('login', () => {
+        it('should return an array of users', async () => {
+            expect(await controller.login(userMock)).toBeDefined();
+        });
     });
 });
