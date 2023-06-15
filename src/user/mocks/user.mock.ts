@@ -53,11 +53,8 @@ export const updatedUserMock = {
     username: 'daniela',
 };
 
-export const userDtoMock = {
-    name: 'Daniela',
-    lastname: 'Lopez',
-    username: 'daniela2',
+export const userPayloadMock = {
+    sub: '1',
     email: 'danielalopez+client@ravn.co',
-    recovery: null,
-    role: Role.CLIENT,
+    role: 'CLIENT' as Role,
 };

@@ -24,12 +24,12 @@ export class UserController {
     }
 
     @Get(':id')
-    async getUser(@Param('id') id: string): Promise<UserDto> {
+    async findOne(@Param('id') id: string): Promise<UserDto> {
         return this.userService.findOne({ id: Number(id) });
     }
 
     @Get()
-    async getAll(
+    async findAll(
         @Query('page') page: string,
         @Query('limit') limit: string
     ): Promise<UserDto[]> {

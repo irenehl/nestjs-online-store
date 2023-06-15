@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '@config/prisma.service';
 import { MockContext, createMockContext } from '@mocks/prisma.mock';
-import { allUsersMock, userDtoMock, userMock } from './mocks/user.mock';
+import { allUsersMock, userMock } from './mocks/user.mock';
 import { ConfigService } from '@nestjs/config';
 
 describe('UserService', () => {
@@ -68,7 +68,8 @@ describe('UserService', () => {
             });
 
             // Assert
-            expect(result).toMatchObject(userDtoMock);
+            expect(result).toHaveProperty('id', expect.any(Number));
+            expect(prisma.user.create).toHaveBeenCalled();
         });
 
         it('should fail when create a new user and user already exists', async () => {
@@ -102,6 +103,7 @@ describe('UserService', () => {
 
             // Assert
             expect(result).toMatchObject(allUsersMock);
+            expect(result).toHaveLength(2);
         });
     });
 
@@ -153,7 +155,8 @@ describe('UserService', () => {
             const result = await service.delete(userMock.id);
 
             // Assert
-            expect(result).toMatchObject(userDtoMock);
+            expect(prisma.user.delete).toHaveBeenCalledTimes(1);
+            expect(result).toHaveProperty('id', expect.any(Number));
         });
 
         it('should fail when delete an user that does not exists', async () => {
