@@ -14,7 +14,6 @@ import { ProductService } from './product.service';
 import { ProductDto } from './dtos/product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-// TODO: Remove / from unnecesary methods
 @Controller('products')
 export class ProductController {
     constructor(private productService: ProductService) {}
@@ -25,16 +24,15 @@ export class ProductController {
         @Body() data: ProductDto,
         @UploadedFile() image: Express.Multer.File
     ): Promise<ProductDto> {
-        console.log(image);
-        return this.productService.create(data);
+        return this.productService.create(data, image);
     }
 
-    @Get('/:sku')
+    @Get(':sku')
     async findOne(@Param('sku') sku: string): Promise<ProductDto | null> {
         return this.productService.findOne({ SKU: Number(sku) });
     }
 
-    @Get('/')
+    @Get('')
     async findAll(
         @Query('page') page: string,
         @Query('limit') limit: string
@@ -42,12 +40,14 @@ export class ProductController {
         return this.productService.findAll({ page, limit });
     }
 
-    @Patch('/:sku')
+    @UseInterceptors(FileInterceptor('image'))
+    @Patch(':sku')
     async update(
         @Body() data: Partial<ProductDto>,
-        @Param('sku') sku: string
+        @Param('sku') sku: string,
+        @UploadedFile() image: Express.Multer.File
     ): Promise<Partial<ProductDto>> {
-        return this.productService.update(Number(sku), data);
+        return this.productService.update(Number(sku), data, image);
     }
 
     @Patch('toggle/:sku')
@@ -55,7 +55,7 @@ export class ProductController {
         return this.productService.toggle(Number(sku));
     }
 
-    @Delete('/:sku')
+    @Delete(':sku')
     async delete(@Param('sku') sku: string): Promise<ProductDto> {
         return this.productService.delete(Number(sku));
     }
