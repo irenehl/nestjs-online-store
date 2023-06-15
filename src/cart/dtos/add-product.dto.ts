@@ -1,4 +1,4 @@
-export class AddProductDto {
+export class AddProductToCartDto {
     SKU: number;
     quantity: number;
 }

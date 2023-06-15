@@ -4,15 +4,15 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { AddProductDto } from './dtos/add-product.dto';
+import { AddProductToCartDto } from './dtos/add-product.dto';
 import { CartDto } from './dtos/cart.dto';
 import { ProductService } from '@product/product.service';
 
 @Injectable()
 export class CartService {
     constructor(
-        private readonly prisma: PrismaService,
-        private readonly productService: ProductService
+        private prisma: PrismaService,
+        private productService: ProductService
     ) {}
 
     async findOne(userId: number) {
@@ -33,11 +33,10 @@ export class CartService {
             });
     }
 
-    async findAllProductsOnCart(cartId: number) {
-        return this.prisma.productsOnCarts.findMany({ where: { cartId } });
-    }
-
-    async addProduct(userId: number, data: AddProductDto): Promise<CartDto> {
+    async addProduct(
+        userId: number,
+        data: AddProductToCartDto
+    ): Promise<CartDto> {
         if (!(await this.productService.isAvailable(data.SKU, data.quantity)))
             throw new BadRequestException('Quantity exceeds current stock');
 
@@ -67,7 +66,7 @@ export class CartService {
         return CartDto.toDto(await this.findOne(cart.userId));
     }
 
-    async removeProduct(userId: number, SKU: number) {
+    async deleteProductOnCart(userId: number, SKU: number) {
         const cart = await this.findOne(userId);
 
         await this.prisma.productsOnCarts
