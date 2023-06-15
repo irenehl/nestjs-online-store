@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { AddProductDto } from './dtos/add-product.dto';
+import { AddProductToCartDto } from './dtos/add-product.dto';
 import { CartDto } from './dtos/cart.dto';
 import { User } from '@user/decorators/user.decorator';
 import { PayloadDto } from '@auth/dtos/payload.dto';
@@ -19,29 +19,28 @@ import { PayloadDto } from '@auth/dtos/payload.dto';
 export class CartController {
     constructor(private cartService: CartService) {}
 
+    // TODO: Add promises
     @Get()
-    async findAllProductsOnCart(@Param('id') id: string) {
-        return this.cartService.findAllProductsOnCart(Number(id));
-    }
-
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.cartService.findOne(Number(id));
+    async findOne(@User() user: PayloadDto) {
+        return this.cartService.findOne(Number(user.sub));
     }
 
     @Post()
     async addProduct(
         @User() user: PayloadDto,
-        @Body() data: AddProductDto
+        @Body() data: AddProductToCartDto
     ): Promise<CartDto> {
         return this.cartService.addProduct(Number(user.sub), data);
     }
 
-    @Delete()
+    @Delete(':sku')
     async deleteProductOnCart(
-        @Param('id') id: string,
-        @Param('productId') prodcutId: string
+        @User() user: PayloadDto,
+        @Param('sku') SKU: string
     ) {
-        return this.cartService.removeProduct(Number(id), Number(prodcutId));
+        return this.cartService.deleteProductOnCart(
+            Number(user.sub),
+            Number(SKU)
+        );
     }
 }

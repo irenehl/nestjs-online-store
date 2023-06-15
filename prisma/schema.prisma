@@ -32,6 +32,7 @@ model Product {
   price       Float
   stock       Int
   image       String?
+  imageUrl    String?
   available   Boolean @default(true)
   category    String  @default("UNCATEGORIZED")
 
