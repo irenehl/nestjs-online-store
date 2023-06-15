@@ -7,17 +7,25 @@ import {
     Patch,
     Post,
     Query,
+    UploadedFile,
+    UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductDto } from './dtos/product.dto';
-import { UpdateProductDto } from './dtos/update-product.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
+// TODO: Remove / from unnecesary methods
 @Controller('products')
 export class ProductController {
     constructor(private productService: ProductService) {}
 
-    @Post('/')
-    async create(@Body() data: ProductDto): Promise<ProductDto> {
+    @UseInterceptors(FileInterceptor('image'))
+    @Post()
+    async create(
+        @Body() data: ProductDto,
+        @UploadedFile() image: Express.Multer.File
+    ): Promise<ProductDto> {
+        console.log(image);
         return this.productService.create(data);
     }
 
@@ -36,10 +44,15 @@ export class ProductController {
 
     @Patch('/:sku')
     async update(
-        @Body() data: UpdateProductDto,
+        @Body() data: Partial<ProductDto>,
         @Param('sku') sku: string
-    ): Promise<UpdateProductDto> {
+    ): Promise<Partial<ProductDto>> {
         return this.productService.update(Number(sku), data);
+    }
+
+    @Patch('toggle/:sku')
+    async toggle(@Param('sku') sku: string): Promise<ProductDto> {
+        return this.productService.toggle(Number(sku));
     }
 
     @Delete('/:sku')

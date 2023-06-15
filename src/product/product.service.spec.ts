@@ -121,6 +121,39 @@ describe('ProductService', () => {
         });
     });
 
+    describe('toggle', () => {
+        it('should change available status', async () => {
+            // Arrange
+            prisma.product.findUniqueOrThrow.mockResolvedValueOnce(productMock);
+            prisma.product.update.mockResolvedValueOnce({
+                ...productMock,
+                available: false,
+            });
+
+            // Act
+            const result = await service.toggle(productMock.SKU);
+
+            expect(result.available).toEqual(false);
+            expect(prisma.product.update).toHaveBeenCalled();
+        });
+
+        it('should delete products on carts', async () => {
+            // Arrange
+            prisma.product.findUniqueOrThrow.mockResolvedValueOnce(productMock);
+            prisma.product.update.mockResolvedValueOnce(productMock);
+            prisma.productsOnCarts.deleteMany.mockResolvedValueOnce({
+                count: 0,
+            });
+
+            // Act
+            const result = await service.toggle(productMock.SKU);
+
+            // Assert
+            expect(result.available).toEqual(true);
+            expect(prisma.product.update).toHaveBeenCalled();
+        });
+    });
+
     describe('delete', () => {
         it('should delete a product', async () => {
             // Arrange

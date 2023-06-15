@@ -24,7 +24,7 @@
       "@user/*": ["./src/user/*"],
       "@auth/*": ["./src/auth/*"],
       "@product/*": ["./src/product/*"],
-      "@cart/*": [".src/cart/*"]
+      "@cart/*": ["./src/cart/*"]
     },
     "resolveJsonModule": true
   }
