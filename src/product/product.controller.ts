@@ -71,8 +71,6 @@ export class ProductController {
     @UseGuards(JwtAuthGuard)
     @Patch(':sku/like')
     async likeProduct(@Param('sku') sku: string, @User() user: PayloadDto) {
-        console.log(user);
-        
         return this.productService.likeProduct(Number(user.sub), Number(sku));
     }
 
