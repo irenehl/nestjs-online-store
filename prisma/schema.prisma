@@ -23,22 +23,37 @@ model User {
   cart      Cart?
   orders    Order[]
   favorites Favorite[]
+
+  @@map("user")
 }
 
 model Product {
   SKU         Int     @id @default(autoincrement())
-  name        String
+  name        String @unique
   description String  @db.VarChar(200)
   price       Float
   stock       Int
   image       String?
   imageUrl    String?
   available   Boolean @default(true)
-  category    String  @default("UNCATEGORIZED")
 
   cart      ProductsOnCarts[]
   orders    ProductsOnOrders[]
   favorites Favorite[]
+
+  category  Category @relation(fields: [categoryId], references: [id])
+  categoryId Int @map("category_id")
+
+  @@map("product")
+}
+
+model Category {
+  id        Int @id @default(autoincrement())
+  name      String @db.VarChar(15) @unique
+
+  products  Product[]
+
+  @@map("category")
 }
 
 model Order {
@@ -50,6 +65,8 @@ model Order {
 
   user   User @relation(fields: [userId], references: [id])
   userId Int  @map("user_id")
+
+  @@map("order")
 }
 
 model Cart {
@@ -59,6 +76,8 @@ model Cart {
 
   user   User @relation(fields: [userId], references: [id])
   userId Int  @unique @map("user_id")
+
+  @@map("cart")
 }
 
 model ProductsOnCarts {
@@ -71,6 +90,7 @@ model ProductsOnCarts {
   productSKU Int     @map("product_sku")
   
   @@id([cartId, productSKU])
+  @@map("products_on_carts")
 }
 
 model ProductsOnOrders {
@@ -83,6 +103,7 @@ model ProductsOnOrders {
   orderId    Int     @map("order_id")
 
   @@id([productSKU, orderId])
+  @@map("products_on_orders")
 }
 
 model Favorite {
@@ -93,6 +114,7 @@ model Favorite {
   productSKU Int     @map("product_sku")
 
   @@id([userId, productSKU])
+  @@map("favorite")
 }
 
 enum Role {

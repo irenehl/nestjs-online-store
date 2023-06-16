@@ -7,6 +7,7 @@ import { ProductModule } from './product/product.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { AwsModule } from './aws/aws.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import { AwsModule } from './aws/aws.module';
         ProductModule,
         CartModule,
         OrderModule,
+        CategoryModule,
     ],
     controllers: [AppController],
     providers: [AppService],
