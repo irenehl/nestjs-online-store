@@ -7,10 +7,13 @@ export class ProductDto {
     price: number;
     stock: number;
     image?: string | null;
+    imageUrl?: string | null;
     available: boolean;
-    category: string;
+    category?: string | null;
 
-    static toDto(product: Product): ProductDto {
+    static toDto(
+        product: Product & { category: { name: string } | null }
+    ): ProductDto {
         return {
             SKU: product.SKU,
             name: product.name,
@@ -18,8 +21,9 @@ export class ProductDto {
             price: product.price,
             stock: product.stock,
             image: product.image,
+            imageUrl: product.imageUrl,
             available: product.available,
-            category: product.category,
+            category: product.category?.name,
         };
     }
 }

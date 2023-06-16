@@ -13,6 +13,8 @@ import {
 import { ProductService } from './product.service';
 import { ProductDto } from './dtos/product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { UpdateProductDto } from './dtos/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -21,7 +23,7 @@ export class ProductController {
     @UseInterceptors(FileInterceptor('image'))
     @Post()
     async create(
-        @Body() data: ProductDto,
+        @Body() data: CreateProductDto,
         @UploadedFile() image: Express.Multer.File
     ): Promise<ProductDto> {
         return this.productService.create(data, image);
@@ -30,6 +32,13 @@ export class ProductController {
     @Get(':sku')
     async findOne(@Param('sku') sku: string): Promise<ProductDto | null> {
         return this.productService.findOne({ SKU: Number(sku) });
+    }
+
+    @Get('category/:id')
+    async getProductsByCategory(
+        @Param('id') id: string
+    ): Promise<ProductDto[]> {
+        return this.productService.getProductByCategory(Number(id));
     }
 
     @Get('')
@@ -43,7 +52,7 @@ export class ProductController {
     @UseInterceptors(FileInterceptor('image'))
     @Patch(':sku')
     async update(
-        @Body() data: Partial<ProductDto>,
+        @Body() data: UpdateProductDto,
         @Param('sku') sku: string,
         @UploadedFile() image: Express.Multer.File
     ): Promise<Partial<ProductDto>> {
