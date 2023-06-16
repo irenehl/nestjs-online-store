@@ -8,6 +8,7 @@ import {
     Post,
     Query,
     UploadedFile,
+    UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
@@ -15,6 +16,9 @@ import { ProductDto } from './dtos/product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { User } from '@user/decorators/user.decorator';
+import { PayloadDto } from '@auth/dtos/payload.dto';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductController {
@@ -59,9 +63,17 @@ export class ProductController {
         return this.productService.update(Number(sku), data, image);
     }
 
-    @Patch('toggle/:sku')
+    @Patch(':sku/toggle')
     async toggle(@Param('sku') sku: string): Promise<ProductDto> {
         return this.productService.toggle(Number(sku));
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Patch(':sku/like')
+    async likeProduct(@Param('sku') sku: string, @User() user: PayloadDto) {
+        console.log(user);
+        
+        return this.productService.likeProduct(Number(user.sub), Number(sku));
     }
 
     @Delete(':sku')

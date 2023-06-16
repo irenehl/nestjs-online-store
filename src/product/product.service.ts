@@ -220,6 +220,43 @@ export class ProductService {
         );
     }
 
+    async likeProduct(userId: number, SKU: number) {
+        const _ = await this.findOne({ SKU });
+
+        const isLiked = await this.prisma.likesOnProducts.findUnique({
+            where: {
+                userId_productSKU: {
+                    userId,
+                    productSKU: SKU,
+                },
+            },
+        });
+
+        return isLiked
+            ? await this.prisma.likesOnProducts.delete({
+                  where: {
+                      userId_productSKU: {
+                          userId,
+                          productSKU: SKU,
+                      },
+                  },
+              })
+            : await this.prisma.likesOnProducts.create({
+                  data: {
+                      user: {
+                          connect: {
+                              id: userId,
+                          },
+                      },
+                      product: {
+                          connect: {
+                              SKU,
+                          },
+                      },
+                  },
+              });
+    }
+
     async delete(SKU: number): Promise<ProductDto> {
         const _ = await this.findOne({ SKU });
 
