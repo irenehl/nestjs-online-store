@@ -1,6 +1,10 @@
 import { IPagination } from '@common/interfaces/pagination.dto';
 import { PrismaService } from '@config/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CategoryDto } from './dtos/category.dto';
 
@@ -8,8 +12,15 @@ import { CategoryDto } from './dtos/category.dto';
 export class CategoryService {
     constructor(private prisma: PrismaService) {}
 
+    private async exists(where: Prisma.CategoryWhereUniqueInput) {
+        return (await this.prisma.category.findUnique({ where })) !== null;
+    }
+
     async create(data: Prisma.CategoryCreateInput) {
-        return await this.prisma.category.create({ data });
+        if (await this.exists({ name: data.name }))
+            throw new ConflictException(`Category ${data.name} already exists`);
+
+        return this.prisma.category.create({ data });
     }
 
     async findOne(
