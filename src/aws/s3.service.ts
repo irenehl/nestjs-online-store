@@ -3,16 +3,15 @@ import {
     PutObjectCommand,
     S3Client,
 } from '@aws-sdk/client-s3';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class S3Service {
-    private s3: S3Client;
-
-    constructor(private configService: ConfigService) {
-        this.s3 = new S3Client({ region: 'us-east-2' });
-    }
+    constructor(
+        @Inject('S3') private s3: S3Client,
+        private configService: ConfigService
+    ) {}
 
     private buildFileName(originalName: string) {
         return `${new Date().toISOString()}_${originalName}`;
@@ -48,7 +47,7 @@ export class S3Service {
     async removeFile(fileName: string) {
         const command = new DeleteObjectCommand({
             Bucket: this.configService.get<string>('AWS_BUCKET_NAME'),
-            Key: this.buildObjectUrl(fileName),
+            Key: fileName,
         });
 
         return this.s3.send(command);

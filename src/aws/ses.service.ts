@@ -1,28 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { ConfigService } from '@nestjs/config';
-
-interface MailParams {
-    toAddresses: string[];
-    htmlData: string;
-    subject: string;
-    source: string;
-}
-
-interface MailInfo {
-    htmlTemplate: string;
-    subject: string;
-    toAddresses: string[];
-    textReplacer: (html: string) => string;
-}
+import { MailInfo } from './interfaces/mail-info.interface';
+import { MailParams } from './interfaces/mail-params.interface';
 
 @Injectable()
-export class MailService {
-    private readonly sesClient = SESClient;
-
-    constructor(sesClient: SESClient, private configService: ConfigService) {
-        this.sesClient = sesClient;
-    }
+export class SesService {
+    constructor(
+        @Inject('SES') private sesClient: SESClient,
+        private configService: ConfigService
+    ) {}
 
     private createParams(mailParams: MailParams) {
         return {
@@ -56,9 +43,10 @@ export class MailService {
             toAddresses,
             htmlData,
             subject,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             source: this.configService.get<string>('MAIL_IDENTITY')!,
         });
 
-        // return this.sesClient.send(new SendEmailCommand(mailParams));
+        return this.sesClient.send(new SendEmailCommand(mailParams));
     }
 }
