@@ -6,6 +6,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@config/prisma.service';
 import { userMock } from '@user/mocks/user.mock';
+import { SesService } from '@aws/ses.service';
+import { createSESMock } from '@mocks/ses.mock';
 
 describe('AuthController', () => {
     let controller: AuthController;
@@ -26,9 +28,13 @@ describe('AuthController', () => {
                 JwtService,
                 ConfigService,
                 PrismaService,
+                SesService,
             ],
             controllers: [AuthController],
-        }).compile();
+        })
+            .overrideProvider(SesService)
+            .useValue(createSESMock())
+            .compile();
 
         controller = module.get<AuthController>(AuthController);
     });

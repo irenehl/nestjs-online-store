@@ -6,6 +6,10 @@ import { UserService } from '@user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { MockContext, createMockContext } from '@mocks/prisma.mock';
 import { userMock } from '@user/mocks/user.mock';
+import { SesService } from '@aws/ses.service';
+import { S3Service } from '@aws/s3.service';
+import { createS3Mock } from '@mocks/s3.mock';
+import { createSESMock } from '@mocks/ses.mock';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -19,10 +23,15 @@ describe('AuthService', () => {
                 ConfigService,
                 UserService,
                 JwtService,
+                SesService,
             ],
         })
             .overrideProvider(PrismaService)
             .useValue(createMockContext())
+            .overrideProvider(S3Service)
+            .useValue(createS3Mock())
+            .overrideProvider(SesService)
+            .useValue(createSESMock())
             .compile();
 
         service = module.get<AuthService>(AuthService);

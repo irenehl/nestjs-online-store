@@ -9,9 +9,12 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaService } from '@config/prisma.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { AwsModule } from '@aws/aws.module';
+import { SesService } from '@aws/ses.service';
 
 @Module({
     imports: [
+        AwsModule,
         UserModule,
         PassportModule,
         ConfigModule,
@@ -32,6 +35,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         PrismaService,
         JwtService,
         JwtStrategy,
+        SesService,
     ],
     controllers: [AuthController],
 })
