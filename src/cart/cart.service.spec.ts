@@ -6,6 +6,9 @@ import { ProductService } from '../product/product.service';
 import { cartMock, productsOnCartsMock } from './mocks/cart.mock';
 import { userMock } from '@user/mocks/user.mock';
 import { productMock } from '@product/mocks/product.mock';
+import { S3Service } from '@aws/s3.service';
+import { CategoryService } from '@category/category.service';
+import { createS3Mock } from '@mocks/s3.mock';
 
 describe('CartService', () => {
     let service: CartService;
@@ -14,10 +17,18 @@ describe('CartService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [CartService, ProductService, PrismaService],
+            providers: [
+                CartService,
+                ProductService,
+                PrismaService,
+                S3Service,
+                CategoryService,
+            ],
         })
             .overrideProvider(PrismaService)
             .useValue(createMockContext())
+            .overrideProvider(S3Service)
+            .useValue(createS3Mock())
             .compile();
 
         service = module.get<CartService>(CartService);

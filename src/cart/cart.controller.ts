@@ -19,7 +19,6 @@ import { PayloadDto } from '@auth/dtos/payload.dto';
 export class CartController {
     constructor(private cartService: CartService) {}
 
-    // TODO: Add promises
     @Get()
     async findOne(@User() user: PayloadDto) {
         return this.cartService.findOne(Number(user.sub));
