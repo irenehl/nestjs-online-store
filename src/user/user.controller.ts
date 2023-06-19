@@ -14,7 +14,9 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UserDto } from './dtos/user.dto';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { ValidationPipe } from '@pipes/validation.pipe';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}
@@ -26,6 +28,8 @@ export class UserController {
         return this.userService.create(data);
     }
 
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @Get(':id')
     async findOne(@Param('id') id: string): Promise<UserDto> {
         return this.userService.findOne({ id: Number(id) });
@@ -39,7 +43,9 @@ export class UserController {
         return this.userService.findAll({ page, limit });
     }
 
+    // TODO: Missing body in swagger
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @Patch(':id')
     async update(
         @Param('id') id: string,
@@ -49,6 +55,7 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @Delete(':id')
     async delete(@Param('id') id: string): Promise<UserDto> {
         return this.userService.delete(Number(id));

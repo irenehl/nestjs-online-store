@@ -9,9 +9,10 @@ async function bootstrap() {
     await prismaService.enableShutdownHooks(app);
 
     const config = new DocumentBuilder()
-        .setTitle('Ravn challenge')
-        .setDescription('User and products endpoints')
+        .setTitle('NestJS Challenge')
+        .setDescription('My Store')
         .setVersion('1.0')
+        .addBearerAuth()
         .build();
 
     const document = SwaggerModule.createDocument(app, config);

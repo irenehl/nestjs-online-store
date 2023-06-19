@@ -7,11 +7,14 @@ import { User } from '@user/decorators/user.decorator';
 import { RequestPasswordDto } from '@user/dtos/request-password.dto';
 import { ResetPasswordDto } from '@user/dtos/reset-password.dto';
 import { ValidationPipe } from '@pipes/validation.pipe';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
+    // TODO: Missing properties in swagger
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@User() user: UserDto): Promise<TokenDto> {

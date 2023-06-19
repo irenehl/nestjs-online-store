@@ -13,8 +13,11 @@ import { AddProductToCartDto } from './dtos/add-product.dto';
 import { CartDto } from './dtos/cart.dto';
 import { User } from '@user/decorators/user.decorator';
 import { PayloadDto } from '@auth/dtos/payload.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Cart')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Controller('cart')
 export class CartController {
     constructor(private cartService: CartService) {}

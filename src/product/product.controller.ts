@@ -23,16 +23,20 @@ import { RolesGuard } from '@auth/guards/role.guard';
 import { Role } from '@auth/decorators/role.decorator';
 import { Public } from '@auth/decorators/public.decorator';
 import { ValidationPipe } from '@pipes/validation.pipe';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Products')
 @UseGuards(JwtAuthGuard)
 @Controller('products')
 export class ProductController {
     constructor(private productService: ProductService) {}
 
+    // TODO: I think that image field is missing in swagger doc
     @UseInterceptors(FileInterceptor('image'))
     @Post()
     @Role('MANAGER')
     @UseGuards(RolesGuard)
+    @ApiBearerAuth()
     async create(
         @Body(new ValidationPipe()) data: CreateProductDto,
         @UploadedFile() image?: Express.Multer.File
@@ -42,7 +46,7 @@ export class ProductController {
 
     @Public()
     @Get(':sku')
-    async findOne(@Param('sku') sku: string): Promise<ProductDto | null> {
+    async findOne(@Param('sku') sku: string): Promise<ProductDto> {
         return this.productService.findOne({ SKU: Number(sku) });
     }
 
@@ -64,6 +68,7 @@ export class ProductController {
     @Patch(':sku')
     @Role('MANAGER')
     @UseGuards(RolesGuard)
+    @ApiBearerAuth()
     async update(
         @Body(new ValidationPipe()) data: UpdateProductDto,
         @Param('sku') sku: string,
@@ -75,11 +80,13 @@ export class ProductController {
     @Patch(':sku/toggle')
     @Role('MANAGER')
     @UseGuards(RolesGuard)
+    @ApiBearerAuth()
     async toggle(@Param('sku') sku: string): Promise<ProductDto> {
         return this.productService.toggle(Number(sku));
     }
 
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @Patch(':sku/like')
     async likeProduct(@Param('sku') sku: string, @User() user: PayloadDto) {
         return this.productService.likeProduct(Number(user.sub), Number(sku));
@@ -88,6 +95,7 @@ export class ProductController {
     @Delete(':sku')
     @Role('MANAGER')
     @UseGuards(RolesGuard)
+    @ApiBearerAuth()
     async delete(@Param('sku') sku: string): Promise<ProductDto> {
         return this.productService.delete(Number(sku));
     }

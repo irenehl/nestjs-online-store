@@ -5,8 +5,11 @@ import { PayloadDto } from '@auth/dtos/payload.dto';
 import { User } from '@user/decorators/user.decorator';
 import { Role } from '@auth/decorators/role.decorator';
 import { RolesGuard } from '@auth/guards/role.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Order')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Controller('order')
 export class OrderController {
     constructor(private orderService: OrderService) {}
