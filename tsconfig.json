@@ -24,7 +24,12 @@
       "@user/*": ["./src/user/*"],
       "@auth/*": ["./src/auth/*"],
       "@product/*": ["./src/product/*"],
-      "@cart/*": ["./src/cart/*"]
+      "@cart/*": ["./src/cart/*"],
+      "@aws/*": ["./src/aws/*"],
+      "@category/*": ["./src/category/*"],
+      "@pipes/*": ["./src/pipes/*"],
+      "@validators/*": ["./src/validators/*"],
+      "@mail/*": ["./src/mail/*"]
     },
     "resolveJsonModule": true
   }

@@ -17,7 +17,7 @@ model User {
   username  String  @unique
   email     String  @unique
   password  String
-  recovery  String? @db.Uuid
+  recovery  String? @unique @db.Uuid
   role      Role   @default(CLIENT)
 
   cart      Cart?
@@ -42,7 +42,7 @@ model Product {
   orders    ProductsOnOrders[]
   likesOnProducts LikesOnProducts[]
 
-  category  Category @relation(fields: [categoryId], references: [id])
+  category  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int @map("category_id")
 
   @@map("product")
@@ -64,7 +64,7 @@ model Order {
 
   products ProductsOnOrders[]
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @map("user_id")
 
   @@map("order")
@@ -75,7 +75,7 @@ model Cart {
 
   products ProductsOnCarts[]
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique @map("user_id")
 
   @@map("cart")
@@ -84,10 +84,10 @@ model Cart {
 model ProductsOnCarts {
   quantity   Int
 
-  cart       Cart    @relation(fields: [cartId], references: [id])
+  cart       Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   cartId     Int     @map("cart_id")
 
-  product    Product @relation(fields: [productSKU], references: [SKU])
+  product    Product @relation(fields: [productSKU], references: [SKU], onDelete: Cascade)
   productSKU Int     @map("product_sku")
   
   @@id([cartId, productSKU])
@@ -97,10 +97,10 @@ model ProductsOnCarts {
 model ProductsOnOrders {
   quantity   Int
 
-  product    Product @relation(fields: [productSKU], references: [SKU])
+  product    Product @relation(fields: [productSKU], references: [SKU], onDelete: Cascade)
   productSKU Int     @map("product_sku")
 
-  order      Order   @relation(fields: [orderId], references: [id])
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId    Int     @map("order_id")
 
   @@id([productSKU, orderId])
@@ -108,10 +108,10 @@ model ProductsOnOrders {
 }
 
 model LikesOnProducts {
-  user       User    @relation(fields: [userId], references: [id])
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int     @map("user_id")
 
-  product    Product @relation(fields: [productSKU], references: [SKU])
+  product    Product @relation(fields: [productSKU], references: [SKU], onDelete: Cascade)
   productSKU Int     @map("product_sku")
 
   @@id([userId, productSKU])
