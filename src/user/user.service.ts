@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '@config/prisma.service';
 import {
     ConflictException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,11 @@ import { IPagination } from '@common/interfaces/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserDto } from './dtos/user.dto';
 import { v4 as uuid } from 'uuid';
+import { SesService } from '@aws/ses.service';
+// TODO: Review this imports
+import welcomeHtml from '../mail/welcome.html';
+import recoveryHtml from '../mail/recovery.html';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Injectable()
 export class UserService {
@@ -17,14 +23,15 @@ export class UserService {
 
     constructor(
         private prisma: PrismaService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private ses: SesService
     ) {
         this.salt = bcrypt.genSaltSync(
             Number(this.configService.get<string>('SALT'))
         );
     }
 
-    async exists(where: Prisma.UserWhereUniqueInput) {
+    private async exists(where: Prisma.UserWhereUniqueInput) {
         return (await this.prisma.user.findUnique({ where })) !== null;
     }
 
@@ -58,6 +65,13 @@ export class UserService {
                           }
                         : undefined,
             },
+        });
+
+        await this.ses.sendEmail({
+            htmlTemplate: welcomeHtml,
+            subject: 'Welcome!',
+            textReplacer: (data) => data.replace('{USERNAME}', user.name),
+            toAddresses: [user.email],
         });
 
         return UserDto.toDto(user);
@@ -121,17 +135,57 @@ export class UserService {
         return UserDto.toDto(user);
     }
 
-    // async recoveryRequest(email: string) {
-    //     const account = await this.userService.findOne({
-    //         email,
-    //     });
+    async resetRequest(email: string) {
+        let user = await this.findOne({
+            email,
+        });
 
-    //     const recoveryToken = uuid();
+        const token = uuid();
 
-    //     await this.userService.update(account.id, {
-    //         recovery: recoveryToken,
-    //     });
+        user = await this.prisma.user.update({
+            where: {
+                email,
+            },
+            data: {
+                recovery: token,
+            },
+        });
 
-    //     await this.
-    // }
+        await this.ses.sendEmail({
+            htmlTemplate: recoveryHtml,
+            subject: 'Reset your password',
+            textReplacer: (data) =>
+                data.replace(
+                    '{LINK}',
+                    `${this.configService.get<string>(
+                        'HOST'
+                    )}/auth/reset/${token}`
+                ),
+            toAddresses: [user.email],
+        });
+
+        return user;
+    }
+
+    async resetHandler(data: ResetPasswordDto, token: string) {
+        try {
+            let user = await this.findOne({ recovery: token });
+
+            user = await this.update(user.id, {
+                password: data.password,
+                recovery: null,
+            });
+
+            await this.ses.sendEmail({
+                htmlTemplate: recoveryHtml,
+                subject: 'Your password has been reset',
+                textReplacer: (data) => data.replace('{USERNAME}', user.name),
+                toAddresses: [user.email],
+            });
+
+            return user;
+        } catch (_) {
+            throw new ForbiddenException('Token is invalid');
+        }
+    }
 }

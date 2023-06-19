@@ -13,13 +13,16 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserDto } from './dtos/user.dto';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { ValidationPipe } from '@pipes/validation.pipe';
 
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}
 
     @Post()
-    async create(@Body() data: CreateUserDto): Promise<UserDto> {
+    async create(
+        @Body(new ValidationPipe()) data: CreateUserDto
+    ): Promise<UserDto> {
         return this.userService.create(data);
     }
 
@@ -40,7 +43,7 @@ export class UserController {
     @Patch(':id')
     async update(
         @Param('id') id: string,
-        @Body() data: Partial<UserDto>
+        @Body(new ValidationPipe()) data: Partial<UserDto>
     ): Promise<UserDto> {
         return this.userService.update(Number(id), data);
     }
