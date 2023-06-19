@@ -2,72 +2,107 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# NestJS Challenge
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Summary 
+* [Description](#description)
+* [Installation](#installation)
+* [Dependencies](#dependencies)
+* [Environment](#environment)
+* [Schemas](#schemas)
+* [Endpoints](#endpoints)
+* [Extra points](#extra-points)
+* [Test coverage](#test-coverage)
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This API was created in NestJS and works like a online store, as a `Manager` you can create, update and delete products, and as a `Client` you can see all the products that are allocated in the database. There are a lot of functions that you can play with, enjoy it!
 
 ## Installation
 
-```bash
-$ yarn install
+* Clone this repository
+* Read [dependencies](#dependencies) section
+* Install every dependency by running `yarn install`
+* Create a `dotenv` file with the variables specified in [environment](#environment) section
+
+## Dependencies
+Listed on [package.json](/package.json)
+
+## Environment
+
+| Variable              |
+|-----------------------|
+| DATABASE_URL          |
+| POSTGRES_USER         |
+| POSTGRES_PASSWORD     |
+| SALT                  |
+| JWT_SECRET            |
+| AWS_ACCESS_KEY        |
+| AWS_SECRET_ACCESS_KEY |
+| AWS_BUCKET_NAME       |
+| AWS_BUCKET_HOST       |
+| HOST                  |
+| MAIL_IDENTITY         |
+
+## Schemas
+
+The base of the API are `products` and `users`, these are the models that are handled
+
+```
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  lastname  String
+  username  String  @unique
+  email     String  @unique
+  password  String
+  recovery  String? @unique @db.Uuid
+  role      Role   @default(CLIENT)
+
+  cart      Cart?
+
+  orders    Order[]
+  likesOnProducts LikesOnProducts[]
+
+  @@map("user")
+}
 ```
 
-## Running the app
+```
+model Product {
+  SKU         Int     @id @default(autoincrement())
+  name        String @unique
+  description String  @db.VarChar(200)
+  price       Float
+  stock       Int
+  image       String?
+  imageUrl    String?
+  available   Boolean @default(true)
 
-```bash
-# development
-$ yarn run start
+  cart      ProductsOnCarts[]
+  orders    ProductsOnOrders[]
+  likesOnProducts LikesOnProducts[]
 
-# watch mode
-$ yarn run start:dev
+  category  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int @map("category_id")
 
-# production mode
-$ yarn run start:prod
+  @@map("product")
+}
 ```
 
-## Test
+You can see all the implementations and relations in the [prisma schema](./prisma/schema.prisma)
 
-```bash
-# unit tests
-$ yarn run test
+## Endpoints
 
-# e2e tests
-$ yarn run test:e2e
+You can test all the functionalities with this [endpoints](./src/docs/nestjs-challenge.json), also if you're running locally, vist [this link](http://localhost:3000/api#)
 
-# test coverage
-$ yarn run test:cov
-```
+## Extra points
+- [X] When the stock of a product reaches 3, notify the last user that liked it and not purchased the product yet with an email. Use a background job and make sure to include the product's image in the email.
 
-## Support
+- [X]  Add forgot password functionality.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- [X] Send an email when the user changes the password
 
-## Stay in touch
+- [ ] Deploy on Heroku
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+## Test coverage
