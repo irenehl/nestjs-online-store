@@ -7,6 +7,8 @@ export const productMock = {
     image: null,
     available: true,
     category: 'LOREM',
+    imageUrl: null,
+    categoryId: 1,
 };
 
 export const allProductsMock = [
@@ -19,6 +21,8 @@ export const allProductsMock = [
         image: null,
         available: true,
         category: 'LOREM',
+        imageUrl: null,
+        categoryId: 1,
     },
     {
         SKU: 2,
@@ -29,6 +33,8 @@ export const allProductsMock = [
         image: null,
         available: true,
         category: 'LOREM',
+        imageUrl: null,
+        categoryId: 1,
     },
     {
         SKU: 3,
@@ -39,16 +45,7 @@ export const allProductsMock = [
         image: null,
         available: true,
         category: 'LOREM',
+        imageUrl: null,
+        categoryId: 1,
     },
 ];
-
-export const updateProductMock = {
-    SKU: 1,
-    name: 'updated product',
-    description: 'lorem ipsum',
-    price: 12.3,
-    stock: 3,
-    image: null,
-    available: true,
-    category: 'LOREM',
-};

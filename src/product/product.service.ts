@@ -1,11 +1,15 @@
 import { PrismaService } from '@config/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ProductDto } from './dtos/product.dto';
 import { IPagination } from '@common/interfaces/pagination.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
-import { S3Service } from 'src/aws/s3.service';
-import { CategoryService } from 'src/category/category.service';
+import { S3Service } from '@aws/s3.service';
+import { CategoryService } from '@category/category.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 
 @Injectable()
@@ -16,11 +20,15 @@ export class ProductService {
         private categoryService: CategoryService
     ) {}
 
-    // TODO: Improve implementation
     async create(
         data: CreateProductDto,
         image?: Express.Multer.File
     ): Promise<ProductDto> {
+        if (
+            await this.prisma.product.findUnique({ where: { name: data.name } })
+        )
+            throw new BadRequestException('Product already exists');
+
         const { name } = await this.categoryService.findOne({
             name: data.category,
         });
@@ -151,32 +159,28 @@ export class ProductService {
         return products.map(ProductDto.toDto);
     }
 
-    // TODO: Improve implementation, fix when update image
     async update(
         SKU: number,
-        data: Partial<UpdateProductDto>,
+        data: Partial<UpdateProductDto> & { image?: string; imageUrl?: string },
         image?: Express.Multer.File
     ): Promise<ProductDto> {
         const product = await this.findOne({ SKU });
 
         if (image) {
-            const { fileName, url } = await this.s3.replaceFile(
-                image,
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                product.image!
-            );
-        }
+            const { fileName, url } = await (product.image
+                ? this.s3.replaceFile(image, product.image)
+                : this.s3.uploadFile(image));
 
-        const { name } = await this.categoryService.findOne({
-            name: data.category,
-        });
+            data.image = fileName;
+            data.imageUrl = url;
+        }
 
         return await this.prisma.product.update({
             data: {
                 ...data,
                 category: {
                     connect: {
-                        name,
+                        name: data.category,
                     },
                 },
             },

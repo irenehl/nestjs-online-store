@@ -31,6 +31,12 @@ describe('ProductController', () => {
                         delete: jest.fn(() => ({
                             productMock,
                         })),
+                        getProductByCategory: jest.fn(() => ({
+                            allProductsMock,
+                        })),
+                        likeProduct: jest.fn(() => ({
+                            productMock,
+                        })),
                     },
                 },
                 PrismaService,
@@ -57,6 +63,12 @@ describe('ProductController', () => {
         });
     });
 
+    describe('getProductsByCategory', () => {
+        it('should getProductsByCategoryd product method be defined', async () => {
+            expect(await controller.getProductByCategory('1')).toBeDefined();
+        });
+    });
+
     describe('findAll', () => {
         it('should findAlld product method be defined', async () => {
             expect(await controller.findAll('1', '15')).toBeDefined();
@@ -72,6 +84,16 @@ describe('ProductController', () => {
     describe('toggle', () => {
         it('should toggled product method be defined', async () => {
             expect(await controller.toggle('1')).toBeDefined();
+        });
+    });
+
+    describe('likeProduct', () => {
+        it('should likeProductd product method be defined', async () => {
+            const userId: any = '1';
+
+            return expect(
+                await controller.likeProduct('1', userId)
+            ).toBeDefined();
         });
     });
 
