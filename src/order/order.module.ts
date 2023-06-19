@@ -6,6 +6,9 @@ import { ProductService } from '@product/product.service';
 import { CartService } from '@cart/cart.service';
 import { AwsModule } from 'src/aws/aws.module';
 import { CategoryService } from 'src/category/category.service';
+import { ConfigService } from '@nestjs/config';
+import { S3Service } from 'src/aws/s3.service';
+import { SesService } from '@aws/ses.service';
 
 @Module({
     imports: [AwsModule],
@@ -15,6 +18,9 @@ import { CategoryService } from 'src/category/category.service';
         ProductService,
         CartService,
         CategoryService,
+        ConfigService,
+        S3Service,
+        SesService,
     ],
     controllers: [OrderController],
 })

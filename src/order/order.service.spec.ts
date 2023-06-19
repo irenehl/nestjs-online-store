@@ -11,6 +11,12 @@ import {
 import { CartService } from '@cart/cart.service';
 import { cartMock, productsOnCartsMock } from '@cart/mocks/cart.mock';
 import { productMock } from '@product/mocks/product.mock';
+import { SesService } from '@aws/ses.service';
+import { createSESMock } from '@mocks/ses.mock';
+import { ConfigService } from '@nestjs/config';
+import { S3Service } from '@aws/s3.service';
+import { createS3Mock } from '@mocks/s3.mock';
+import { CategoryService } from '@category/category.service';
 
 describe('OrderService', () => {
     let service: OrderService;
@@ -23,10 +29,18 @@ describe('OrderService', () => {
                 PrismaService,
                 ProductService,
                 CartService,
+                SesService,
+                ConfigService,
+                S3Service,
+                CategoryService,
             ],
         })
             .overrideProvider(PrismaService)
             .useValue(createMockContext())
+            .overrideProvider(S3Service)
+            .useValue(createS3Mock())
+            .overrideProvider(SesService)
+            .useValue(createSESMock())
             .compile();
 
         service = module.get<OrderService>(OrderService);
@@ -84,6 +98,8 @@ describe('OrderService', () => {
                 return orderMock;
             });
             prisma.cart.findFirstOrThrow.mockResolvedValue(cartMock);
+            prisma.productsOnCarts.findMany.mockResolvedValue([]);
+            prisma.user.findMany.mockResolvedValueOnce([]);
             prisma.order.create.mockResolvedValueOnce(orderMock);
             prisma.product.update.mockResolvedValue(productMock);
             prisma.productsOnOrders.create.mockResolvedValueOnce(
