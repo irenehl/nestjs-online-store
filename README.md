@@ -106,3 +106,6 @@ You can test all the functionalities with this [endpoints](./src/docs/nestjs-cha
 - [ ] Deploy on Heroku
 
 ## Test coverage
+
+![image](https://github.com/irenehl/nestjs-nerdery-challenge/assets/54600515/2f43a6fb-6519-4a9d-8b69-faa59d28211f)
+
