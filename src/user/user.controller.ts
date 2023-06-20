@@ -15,6 +15,7 @@ import { UserDto } from './dtos/user.dto';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { ValidationPipe } from '@pipes/validation.pipe';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -43,13 +44,12 @@ export class UserController {
         return this.userService.findAll({ page, limit });
     }
 
-    // TODO: Missing body in swagger
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Patch(':id')
     async update(
         @Param('id') id: string,
-        @Body(new ValidationPipe()) data: Partial<UserDto>
+        @Body(new ValidationPipe()) data: UpdateUserDto
     ): Promise<UserDto> {
         return this.userService.update(Number(id), data);
     }

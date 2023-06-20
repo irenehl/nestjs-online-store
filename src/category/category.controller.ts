@@ -8,16 +8,15 @@ import {
     Post,
     Query,
     UseGuards,
-    UsePipes,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CategoryDto, CategoryDtoSchema } from './dtos/category.dto';
+import { CategoryDto } from './dtos/category.dto';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { JoiValidationPipe } from '@config/joi-validation';
 import { Role } from '@auth/decorators/role.decorator';
 import { RolesGuard } from '@auth/guards/role.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateCategoryDto } from './dtos/create-category.dto';
+import { CategoryBodyDto } from './dtos/category-body.dto';
+import { ValidationPipe } from '@pipes/validation.pipe';
 
 @ApiTags('Category')
 @UseGuards(JwtAuthGuard)
@@ -29,8 +28,7 @@ export class CategoryController {
     @Role('MANAGER')
     @UseGuards(RolesGuard)
     @ApiBearerAuth()
-    @UsePipes(new JoiValidationPipe(CategoryDtoSchema))
-    async create(@Body() data: CreateCategoryDto): Promise<CategoryDto> {
+    async create(@Body() data: CategoryBodyDto): Promise<CategoryDto> {
         return this.categoryService.create(data);
     }
 
@@ -47,15 +45,13 @@ export class CategoryController {
         return this.categoryService.findAll({ page, limit });
     }
 
-    // TODO: Missing body in swagger
     @Patch(':id')
     @Role('MANAGER')
     @UseGuards(RolesGuard)
     @ApiBearerAuth()
-    @UsePipes(new JoiValidationPipe(CategoryDtoSchema))
     async update(
         @Param('id') id: string,
-        @Body() data: Partial<CategoryDto>
+        @Body(new ValidationPipe()) data: CategoryBodyDto
     ): Promise<CategoryDto> {
         return this.categoryService.update({ id: Number(id) }, data);
     }

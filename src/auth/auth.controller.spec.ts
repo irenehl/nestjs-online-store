@@ -22,6 +22,12 @@ describe('AuthController', () => {
                         login: jest.fn(() => ({
                             access_token: 'a',
                         })),
+                        resetRequest: jest.fn(() => ({
+                            userMock,
+                        })),
+                        resetHandler: jest.fn(() => ({
+                            userMock,
+                        })),
                     },
                 },
                 UserService,
@@ -46,6 +52,24 @@ describe('AuthController', () => {
     describe('login', () => {
         it('should return an array of users', async () => {
             expect(await controller.login(userMock)).toBeDefined();
+        });
+    });
+
+    describe('resetRequest', () => {
+        it('should reset request method be defined', async () => {
+            expect(
+                await controller.resetRequest({
+                    email: 'danielalopez+user@ravn.co',
+                })
+            ).toBeDefined();
+        });
+    });
+
+    describe('resetHandler', () => {
+        it('should reset handler method be defined', async () => {
+            expect(
+                await controller.resetHandler({ password: 'new pass' }, 'token')
+            ).toBeDefined();
         });
     });
 });

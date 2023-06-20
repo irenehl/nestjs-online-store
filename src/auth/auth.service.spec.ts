@@ -79,4 +79,58 @@ describe('AuthService', () => {
             expect(result).toHaveProperty('access_token', expect.any(String));
         });
     });
+
+    describe('resetRequest', () => {
+        it('should return a user with a recovery token', async () => {
+            // Arrange
+            prisma.user.findUniqueOrThrow.mockResolvedValue(userMock);
+            prisma.user.update.mockResolvedValueOnce({
+                ...userMock,
+                recovery: 'token',
+            });
+
+            // Act
+            const result = await service.resetRequest({
+                email: 'danielalopez@ravn.co',
+            });
+
+            // Assert
+            expect(result).toHaveProperty('recovery');
+            expect(result.recovery).toEqual('token');
+        });
+    });
+
+    describe('resetHandler', () => {
+        it('should handle the password change and nullify the token', async () => {
+            // Arrange
+            prisma.user.findUniqueOrThrow.mockResolvedValue(userMock);
+            prisma.user.update.mockResolvedValueOnce({
+                ...userMock,
+                recovery: null,
+                password: '123',
+            });
+
+            // Act
+            const result = await service.resetHandler(
+                {
+                    password: '123',
+                },
+                'token'
+            );
+
+            // Assert
+            expect(result).toHaveProperty('recovery');
+            expect(result.recovery).toEqual(null);
+        });
+
+        it('should fail when there is no token', async () => {
+            // Arrange, Act & Assert
+            await expect(
+                service.resetHandler(
+                    { password: '1' },
+                    null as unknown as string
+                )
+            ).rejects.toThrow('Token is invalid');
+        });
+    });
 });

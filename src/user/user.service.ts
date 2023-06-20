@@ -12,7 +12,6 @@ import { ConfigService } from '@nestjs/config';
 import { UserDto } from './dtos/user.dto';
 import { v4 as uuid } from 'uuid';
 import { SesService } from '@aws/ses.service';
-// TODO: Review this imports
 import welcomeHtml from '../mail/welcome.html';
 import recoveryHtml from '../mail/recovery.html';
 import { ResetPasswordDto } from './dtos/reset-password.dto';

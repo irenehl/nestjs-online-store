@@ -31,7 +31,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class ProductController {
     constructor(private productService: ProductService) {}
 
-    // TODO: I think that image field is missing in swagger doc
     @UseInterceptors(FileInterceptor('image'))
     @Post()
     @Role('MANAGER')
