@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
+    // TODO: Add body in swagger
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@User() user: UserDto): Promise<TokenDto> {
