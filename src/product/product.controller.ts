@@ -24,6 +24,7 @@ import { Role } from '@auth/decorators/role.decorator';
 import { Public } from '@auth/decorators/public.decorator';
 import { ValidationPipe } from '@pipes/validation.pipe';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { LikesOnProductsDto } from './dtos/like-on-product.dto';
 
 @ApiTags('Products')
 @UseGuards(JwtAuthGuard)
@@ -49,6 +50,7 @@ export class ProductController {
         return this.productService.findOne({ SKU: Number(sku) });
     }
 
+    @Public()
     @Get('category/:id')
     async getProductByCategory(@Param('id') id: string): Promise<ProductDto[]> {
         return this.productService.getProductByCategory(Number(id));
@@ -72,7 +74,7 @@ export class ProductController {
         @Body(new ValidationPipe()) data: UpdateProductDto,
         @Param('sku') sku: string,
         @UploadedFile() image?: Express.Multer.File
-    ): Promise<Partial<ProductDto>> {
+    ): Promise<ProductDto> {
         return this.productService.update(Number(sku), data, image);
     }
 
@@ -87,15 +89,18 @@ export class ProductController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Patch(':sku/like')
-    async likeProduct(@Param('sku') sku: string, @User() user: PayloadDto) {
-        return this.productService.likeProduct(Number(user.sub), Number(sku));
+    async likeProduct(
+        @Param('sku') sku: string,
+        @User() user: PayloadDto
+    ): Promise<LikesOnProductsDto> {
+        return this.productService.likeProduct(user.sub, Number(sku));
     }
 
     @Delete(':sku')
     @Role('MANAGER')
     @UseGuards(RolesGuard)
     @ApiBearerAuth()
-    async delete(@Param('sku') sku: string): Promise<ProductDto> {
+    async delete(@Param('sku') sku: string): Promise<void> {
         return this.productService.delete(Number(sku));
     }
 }

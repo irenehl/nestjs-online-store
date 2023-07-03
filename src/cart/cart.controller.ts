@@ -14,9 +14,12 @@ import { CartDto } from './dtos/cart.dto';
 import { User } from '@user/decorators/user.decorator';
 import { PayloadDto } from '@auth/dtos/payload.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RolesGuard } from '@auth/guards/role.guard';
+import { Role } from '@auth/decorators/role.decorator';
 
 @ApiTags('Cart')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Role('CLIENT')
 @ApiBearerAuth()
 @Controller('cart')
 export class CartController {
@@ -24,7 +27,7 @@ export class CartController {
 
     @Get()
     async findOne(@User() user: PayloadDto) {
-        return this.cartService.findOne(Number(user.sub));
+        return this.cartService.findOne(user.sub);
     }
 
     @Post()
@@ -32,17 +35,14 @@ export class CartController {
         @User() user: PayloadDto,
         @Body() data: AddProductToCartDto
     ): Promise<CartDto> {
-        return this.cartService.addProduct(Number(user.sub), data);
+        return this.cartService.addProduct(user.sub, data);
     }
 
     @Delete(':sku')
     async deleteProductOnCart(
         @User() user: PayloadDto,
         @Param('sku') SKU: string
-    ) {
-        return this.cartService.deleteProductOnCart(
-            Number(user.sub),
-            Number(SKU)
-        );
+    ): Promise<CartDto> {
+        return this.cartService.deleteProductOnCart(user.sub, Number(SKU));
     }
 }

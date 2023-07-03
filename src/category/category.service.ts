@@ -16,7 +16,7 @@ export class CategoryService {
         return (await this.prisma.category.findUnique({ where })) !== null;
     }
 
-    async create(data: Prisma.CategoryCreateInput) {
+    async create(data: Prisma.CategoryCreateInput): Promise<CategoryDto> {
         if (await this.exists({ name: data.name }))
             throw new ConflictException(`Category ${data.name} already exists`);
 
@@ -43,10 +43,10 @@ export class CategoryService {
             where?: Prisma.CategoryWhereInput;
             orderBy?: Prisma.CategoryOrderByWithAggregationInput;
         }
-    ) {
+    ): Promise<CategoryDto[]> {
         const { page, limit, cursor, where, orderBy } = params;
 
-        return await this.prisma.category.findMany({
+        return this.prisma.category.findMany({
             skip: Number(page) - 1,
             take: Number(limit),
             cursor,
@@ -58,8 +58,8 @@ export class CategoryService {
     async update(
         where: Prisma.CategoryWhereUniqueInput,
         data: Prisma.CategoryUpdateInput
-    ) {
-        const _ = await this.findOne(where);
+    ): Promise<CategoryDto> {
+        await this.findOne(where);
 
         return this.prisma.category.update({
             data,
@@ -67,9 +67,8 @@ export class CategoryService {
         });
     }
 
-    async delete(where: Prisma.CategoryWhereUniqueInput) {
-        const _ = await this.findOne(where);
-
-        return await this.prisma.category.delete({ where });
+    async delete(where: Prisma.CategoryWhereUniqueInput): Promise<void> {
+        await this.findOne(where);
+        await this.prisma.category.delete({ where });
     }
 }

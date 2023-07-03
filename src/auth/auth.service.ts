@@ -38,11 +38,14 @@ export class AuthService {
         };
     }
 
-    async resetRequest(dto: RequestPasswordDto) {
+    async resetRequest(dto: RequestPasswordDto): Promise<UserDto | User> {
         return this.userService.resetRequest(dto.email);
     }
 
-    async resetHandler(dto: ResetPasswordDto, token: string) {
+    async resetHandler(
+        dto: ResetPasswordDto,
+        token: string
+    ): Promise<UserDto | User> {
         if (!token || token.length <= 0)
             throw new BadRequestException('Token is invalid');
 

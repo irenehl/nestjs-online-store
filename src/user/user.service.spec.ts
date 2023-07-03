@@ -10,6 +10,7 @@ import { SESMockContext, createSESMock } from '@mocks/ses.mock';
 describe('UserService', () => {
     let service: UserService;
     let prisma: MockContext;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let ses: SESMockContext;
 
     beforeEach(async () => {

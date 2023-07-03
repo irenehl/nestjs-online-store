@@ -1,4 +1,4 @@
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
@@ -20,15 +20,4 @@ export class CreateUserDto {
     @IsEnum(Role)
     @IsOptional()
     role?: Role;
-
-    static toDto(user: User): CreateUserDto {
-        return {
-            name: user.name,
-            lastname: user.lastname,
-            email: user.email,
-            password: user.password,
-            username: user.password,
-            role: user.role,
-        };
-    }
 }

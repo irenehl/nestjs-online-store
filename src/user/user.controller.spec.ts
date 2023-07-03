@@ -65,7 +65,13 @@ describe('UserController', () => {
     describe('update', () => {
         it('should return an updated user method be defined', async () => {
             expect(
-                await controller.update('1', { username: 'updated username' })
+                await controller.update('1', {
+                    username: 'updated username',
+                    name: '',
+                    lastname: '',
+                    email: '',
+                    password: '',
+                })
             ).toBeDefined();
         });
     });

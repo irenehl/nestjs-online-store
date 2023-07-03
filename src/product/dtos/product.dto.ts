@@ -1,5 +1,3 @@
-import { Product } from '@prisma/client';
-
 export class ProductDto {
     SKU: number;
     name: string;
@@ -10,20 +8,4 @@ export class ProductDto {
     imageUrl?: string | null;
     available: boolean;
     category?: string | null;
-
-    static toDto(
-        product: Product & { category: { name: string } | null }
-    ): ProductDto {
-        return {
-            SKU: product.SKU,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            stock: product.stock,
-            image: product.image,
-            imageUrl: product.imageUrl,
-            available: product.available,
-            category: product.category?.name,
-        };
-    }
 }

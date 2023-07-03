@@ -21,7 +21,9 @@ export class AuthController {
     }
 
     @Post('reset')
-    async resetRequest(@Body(new ValidationPipe()) body: RequestPasswordDto) {
+    async resetRequest(
+        @Body(new ValidationPipe()) body: RequestPasswordDto
+    ): Promise<UserDto> {
         return this.authService.resetRequest(body);
     }
 
@@ -29,7 +31,7 @@ export class AuthController {
     async resetHandler(
         @Body(new ValidationPipe()) body: ResetPasswordDto,
         @Param('token') token: string
-    ) {
+    ): Promise<UserDto> {
         return this.authService.resetHandler(body, token);
     }
 }

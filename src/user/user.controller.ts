@@ -16,12 +16,15 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { ValidationPipe } from '@pipes/validation.pipe';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { Public } from '@auth/decorators/public.decorator';
 
 @ApiTags('Users')
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}
 
+    @Public()
     @Post()
     async create(
         @Body(new ValidationPipe()) data: CreateUserDto
@@ -29,13 +32,13 @@ export class UserController {
         return this.userService.create(data);
     }
 
-    @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Get(':id')
     async findOne(@Param('id') id: string): Promise<UserDto> {
         return this.userService.findOne({ id: Number(id) });
     }
 
+    @Public()
     @Get()
     async findAll(
         @Query('page') page: string,
@@ -44,7 +47,6 @@ export class UserController {
         return this.userService.findAll({ page, limit });
     }
 
-    @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Patch(':id')
     async update(
@@ -54,10 +56,9 @@ export class UserController {
         return this.userService.update(Number(id), data);
     }
 
-    @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Delete(':id')
-    async delete(@Param('id') id: string): Promise<UserDto> {
+    async delete(@Param('id') id: string): Promise<void> {
         return this.userService.delete(Number(id));
     }
 }

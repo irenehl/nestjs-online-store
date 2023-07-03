@@ -11,6 +11,8 @@ import { UpdateProductDto } from './dtos/update-product.dto';
 import { S3Service } from '@aws/s3.service';
 import { CategoryService } from '@category/category.service';
 import { CreateProductDto } from './dtos/create-product.dto';
+import { LikesOnProductsDto } from './dtos/like-on-product.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
@@ -34,7 +36,8 @@ export class ProductService {
         });
 
         if (!image)
-            return ProductDto.toDto(
+            return plainToInstance(
+                ProductDto,
                 await this.prisma.product.create({
                     data: {
                         ...data,
@@ -78,7 +81,8 @@ export class ProductService {
 
         const { fileName, url } = await this.s3.uploadFile(image);
 
-        return ProductDto.toDto(
+        return plainToInstance(
+            ProductDto,
             await this.prisma.product.update({
                 where: { SKU: product.SKU },
                 data: {
@@ -112,7 +116,7 @@ export class ProductService {
                 throw new NotFoundException(`Product ${where.SKU} not found`);
             });
 
-        return ProductDto.toDto(product);
+        return plainToInstance(ProductDto, product);
     }
 
     async findAll(
@@ -139,7 +143,7 @@ export class ProductService {
             },
         });
 
-        return products.map(ProductDto.toDto);
+        return plainToInstance(ProductDto, products);
     }
 
     async getProductByCategory(categoryId: number): Promise<ProductDto[]> {
@@ -156,7 +160,7 @@ export class ProductService {
             },
         });
 
-        return products.map(ProductDto.toDto);
+        return plainToInstance(ProductDto, products);
     }
 
     async update(
@@ -175,7 +179,7 @@ export class ProductService {
             data.imageUrl = url;
         }
 
-        return await this.prisma.product.update({
+        return this.prisma.product.update({
             data: {
                 ...data,
                 category: {
@@ -191,7 +195,12 @@ export class ProductService {
     }
 
     async isAvailable(SKU: number, amount: number): Promise<boolean> {
-        const product = await this.findOne({ SKU });
+        const product = await this.prisma.product.findFirstOrThrow({
+            where: { SKU },
+            select: {
+                stock: true,
+            },
+        });
 
         return product.stock >= amount;
     }
@@ -207,7 +216,8 @@ export class ProductService {
             });
         }
 
-        return ProductDto.toDto(
+        return plainToInstance(
+            ProductDto,
             await this.prisma.product.update({
                 where: { SKU },
                 data: {
@@ -224,8 +234,11 @@ export class ProductService {
         );
     }
 
-    async likeProduct(userId: number, SKU: number) {
-        const _ = await this.findOne({ SKU });
+    async likeProduct(
+        userId: number,
+        SKU: number
+    ): Promise<LikesOnProductsDto> {
+        await this.findOne({ SKU });
 
         const isLiked = await this.prisma.likesOnProducts.findUnique({
             where: {
@@ -261,22 +274,20 @@ export class ProductService {
               });
     }
 
-    async delete(SKU: number): Promise<ProductDto> {
-        const _ = await this.findOne({ SKU });
+    async delete(SKU: number): Promise<void> {
+        await this.findOne({ SKU });
 
-        return ProductDto.toDto(
-            await this.prisma.product.delete({
-                where: {
-                    SKU,
-                },
-                include: {
-                    category: {
-                        select: {
-                            name: true,
-                        },
+        await this.prisma.product.delete({
+            where: {
+                SKU,
+            },
+            include: {
+                category: {
+                    select: {
+                        name: true,
                     },
                 },
-            })
-        );
+            },
+        });
     }
 }

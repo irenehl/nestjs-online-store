@@ -15,6 +15,7 @@ import { SesService } from '@aws/ses.service';
 import welcomeHtml from '../mail/welcome.html';
 import recoveryHtml from '../mail/recovery.html';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -44,10 +45,10 @@ export class UserService {
                 throw new NotFoundException('User not found');
             });
 
-        return isPrivate ? UserDto.toDto(user) : user;
+        return isPrivate ? plainToInstance(UserDto, user) : user;
     }
 
-    async create(data: Prisma.UserCreateInput) {
+    async create(data: Prisma.UserCreateInput): Promise<UserDto> {
         if (await this.exists({ email: data.email }))
             throw new ConflictException('User already exists');
 
@@ -73,7 +74,7 @@ export class UserService {
             toAddresses: [user.email],
         });
 
-        return UserDto.toDto(user);
+        return plainToInstance(UserDto, user);
     }
 
     async findAll(
@@ -85,7 +86,7 @@ export class UserService {
     ): Promise<UserDto[]> {
         const { page, limit, cursor, where, orderBy } = params;
 
-        return await this.prisma.user.findMany({
+        return this.prisma.user.findMany({
             skip: Number(page) - 1,
             take: Number(limit),
             cursor,
@@ -122,19 +123,17 @@ export class UserService {
             },
         });
 
-        return UserDto.toDto(user);
+        return plainToInstance(UserDto, user);
     }
 
-    async delete(userId: number): Promise<UserDto> {
+    async delete(userId: number): Promise<void> {
         if (!(await this.exists({ id: userId })))
             throw new NotFoundException('User not found');
 
-        const user = await this.prisma.user.delete({ where: { id: userId } });
-
-        return UserDto.toDto(user);
+        await this.prisma.user.delete({ where: { id: userId } });
     }
 
-    async resetRequest(email: string) {
+    async resetRequest(email: string): Promise<UserDto> {
         let user = await this.findOne({
             email,
         });
@@ -166,7 +165,10 @@ export class UserService {
         return user;
     }
 
-    async resetHandler(data: ResetPasswordDto, token: string) {
+    async resetHandler(
+        data: ResetPasswordDto,
+        token: string
+    ): Promise<UserDto> {
         try {
             let user = await this.findOne({ recovery: token });
 

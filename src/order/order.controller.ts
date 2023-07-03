@@ -6,6 +6,7 @@ import { User } from '@user/decorators/user.decorator';
 import { Role } from '@auth/decorators/role.decorator';
 import { RolesGuard } from '@auth/guards/role.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Order } from '@prisma/client';
 
 @ApiTags('Order')
 @UseGuards(JwtAuthGuard)
@@ -15,19 +16,22 @@ export class OrderController {
     constructor(private orderService: OrderService) {}
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string): Promise<Order> {
         return this.orderService.findOne({ id: Number(id) });
     }
 
     @Get()
     @Role('MANAGER')
     @UseGuards(RolesGuard)
-    async findAll(@Query('page') page: string, @Query('limit') limit: string) {
+    async findAll(
+        @Query('page') page: string,
+        @Query('limit') limit: string
+    ): Promise<Order[]> {
         return this.orderService.findAll({ page, limit });
     }
 
     @Post()
-    async placeOrder(@User() user: PayloadDto) {
-        return this.orderService.placeOrder(Number(user.sub));
+    async placeOrder(@User() user: PayloadDto): Promise<Order> {
+        return this.orderService.placeOrder(user.sub);
     }
 }

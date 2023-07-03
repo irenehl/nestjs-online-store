@@ -7,6 +7,7 @@ import {
 import { AddProductToCartDto } from './dtos/add-product.dto';
 import { CartDto } from './dtos/cart.dto';
 import { ProductService } from '@product/product.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CartService {
@@ -15,6 +16,7 @@ export class CartService {
         private productService: ProductService
     ) {}
 
+    // TODO: Pending promise
     async findOne(userId: number) {
         return this.prisma.cart
             .findFirstOrThrow({
@@ -63,10 +65,11 @@ export class CartService {
             },
         });
 
-        return CartDto.toDto(await this.findOne(cart.userId));
+        return plainToInstance(CartDto, await this.findOne(cart.userId));
     }
 
-    async deleteProductOnCart(userId: number, SKU: number) {
+    // This returns the updated cart, that's the reason why it doesn't return void
+    async deleteProductOnCart(userId: number, SKU: number): Promise<CartDto> {
         const cart = await this.findOne(userId);
 
         await this.prisma.productsOnCarts
@@ -97,6 +100,6 @@ export class CartService {
             },
         });
 
-        return CartDto.toDto(await this.findOne(cart.userId));
+        return plainToInstance(CartDto, await this.findOne(cart.userId));
     }
 }

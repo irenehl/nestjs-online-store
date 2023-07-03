@@ -5,8 +5,7 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { OrderDto } from './dtos/order.dto';
+import { Order, Prisma } from '@prisma/client';
 import { SesService } from '@aws/ses.service';
 import { StockNotificationDto } from './dtos/stock-notification.dto';
 import cartAlertHtml from '../mail/cart-alert.html';
@@ -15,7 +14,7 @@ import cartAlertHtml from '../mail/cart-alert.html';
 export class OrderService {
     constructor(private prisma: PrismaService, private ses: SesService) {}
 
-    async findOne(where: Prisma.OrderWhereUniqueInput) {
+    async findOne(where: Prisma.OrderWhereUniqueInput): Promise<Order> {
         return this.prisma.order.findUniqueOrThrow({ where }).catch(() => {
             throw new NotFoundException('Order not found');
         });
@@ -27,7 +26,7 @@ export class OrderService {
             where?: Prisma.OrderWhereInput;
             orderBy?: Prisma.UserOrderByWithAggregationInput;
         }
-    ) {
+    ): Promise<Order[]> {
         const { page, limit, cursor, where, orderBy } = params;
         return this.prisma.order.findMany({
             skip: Number(page) - 1,
@@ -38,7 +37,8 @@ export class OrderService {
         });
     }
 
-    async placeOrder(userId: number) {
+    // TODO: Check if this return type can be changed to OrderDto
+    async placeOrder(userId: number): Promise<Order> {
         return this.prisma.$transaction(async (tx) => {
             const cart = await tx.cart
                 .findFirstOrThrow({
@@ -153,22 +153,20 @@ export class OrderService {
                 );
             }
 
-            return OrderDto.toDto(
-                await tx.order.update({
-                    where: { id: order.id },
-                    data: {
-                        total: totalAmount,
-                    },
-                    include: {
-                        products: {
-                            select: {
-                                product: true,
-                                quantity: true,
-                            },
+            return tx.order.update({
+                where: { id: order.id },
+                data: {
+                    total: totalAmount,
+                },
+                include: {
+                    products: {
+                        select: {
+                            product: true,
+                            quantity: true,
                         },
                     },
-                })
-            );
+                },
+            });
         });
     }
 }
