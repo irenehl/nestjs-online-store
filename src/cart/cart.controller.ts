@@ -26,7 +26,7 @@ export class CartController {
     constructor(private cartService: CartService) {}
 
     @Get()
-    async findOne(@User() user: PayloadDto) {
+    async findOne(@User() user: PayloadDto): Promise<CartDto> {
         return this.cartService.findOne(user.sub);
     }
 

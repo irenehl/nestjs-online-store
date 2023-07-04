@@ -7,6 +7,7 @@ import { Role } from '@auth/decorators/role.decorator';
 import { RolesGuard } from '@auth/guards/role.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Order } from '@prisma/client';
+import { OrderDto } from './dtos/order.dto';
 
 @ApiTags('Order')
 @UseGuards(JwtAuthGuard)
@@ -31,7 +32,7 @@ export class OrderController {
     }
 
     @Post()
-    async placeOrder(@User() user: PayloadDto): Promise<Order> {
+    async placeOrder(@User() user: PayloadDto): Promise<OrderDto> {
         return this.orderService.placeOrder(user.sub);
     }
 }

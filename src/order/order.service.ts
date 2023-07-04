@@ -9,6 +9,8 @@ import { Order, Prisma } from '@prisma/client';
 import { SesService } from '@aws/ses.service';
 import { StockNotificationDto } from './dtos/stock-notification.dto';
 import cartAlertHtml from '../mail/cart-alert.html';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import { OrderDto } from './dtos/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -37,9 +39,10 @@ export class OrderService {
         });
     }
 
-    // TODO: Check if this return type can be changed to OrderDto
-    async placeOrder(userId: number): Promise<Order> {
-        return this.prisma.$transaction(async (tx) => {
+    async placeOrder(userId: number): Promise<OrderDto> {
+        const notifications: StockNotificationDto[] = [];
+
+        const result = await this.prisma.$transaction(async (tx) => {
             const cart = await tx.cart
                 .findFirstOrThrow({
                     where: { userId },
@@ -63,7 +66,6 @@ export class OrderService {
             });
 
             let totalAmount = 0;
-            const notifications: StockNotificationDto[] = [];
 
             await Promise.all(
                 cart.products.map(async ({ product, quantity }) => {
@@ -134,25 +136,6 @@ export class OrderService {
                 })
             );
 
-            if (notifications && notifications.length > 0) {
-                await Promise.all(
-                    notifications.map(async (notification) =>
-                        this.ses.sendEmail({
-                            htmlTemplate: cartAlertHtml,
-                            subject: 'Check your cart!',
-                            textReplacer: (data) =>
-                                data
-                                    .replace('{PRODUCT_NAME', notification.name)
-                                    .replace(
-                                        '{PRODUCT_STOCK}',
-                                        notification.quantity.toString()
-                                    ),
-                            toAddresses: notification.users,
-                        })
-                    )
-                );
-            }
-
             return tx.order.update({
                 where: { id: order.id },
                 data: {
@@ -168,5 +151,26 @@ export class OrderService {
                 },
             });
         });
+
+        if (notifications && notifications.length > 0) {
+            await Promise.all(
+                notifications.map(async (notification) =>
+                    this.ses.sendEmail({
+                        htmlTemplate: cartAlertHtml,
+                        subject: 'Check your cart!',
+                        textReplacer: (data) =>
+                            data
+                                .replace('{PRODUCT_NAME', notification.name)
+                                .replace(
+                                    '{PRODUCT_STOCK}',
+                                    notification.quantity.toString()
+                                ),
+                        toAddresses: notification.users,
+                    })
+                )
+            );
+        }
+
+        return plainToInstance(OrderDto, result);
     }
 }

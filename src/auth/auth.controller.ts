@@ -7,14 +7,17 @@ import { User } from '@user/decorators/user.decorator';
 import { RequestPasswordDto } from '@user/dtos/request-password.dto';
 import { ResetPasswordDto } from '@user/dtos/reset-password.dto';
 import { ValidationPipe } from '@pipes/validation.pipe';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dtos/login.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    // TODO: Add body in swagger
+    @ApiBody({
+        type: LoginDto,
+    })
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@User() user: UserDto): Promise<TokenDto> {

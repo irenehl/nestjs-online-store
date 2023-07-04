@@ -16,23 +16,25 @@ export class CartService {
         private productService: ProductService
     ) {}
 
-    // TODO: Pending promise
-    async findOne(userId: number) {
-        return this.prisma.cart
-            .findFirstOrThrow({
-                where: { userId },
-                include: {
-                    products: {
-                        select: {
-                            product: true,
-                            quantity: true,
+    async findOne(userId: number): Promise<CartDto> {
+        return plainToInstance(
+            CartDto,
+            await this.prisma.cart
+                .findFirstOrThrow({
+                    where: { userId },
+                    include: {
+                        products: {
+                            select: {
+                                product: true,
+                                quantity: true,
+                            },
                         },
                     },
-                },
-            })
-            .catch(() => {
-                throw new NotFoundException('Cart not found');
-            });
+                })
+                .catch(() => {
+                    throw new NotFoundException('Cart not found');
+                })
+        );
     }
 
     async addProduct(
